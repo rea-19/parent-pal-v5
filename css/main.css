@@ -448,7 +448,7 @@ border-radius: 8px;
 
 #controls {
 position: absolute;
-top: 1rem;
+top: 6rem;
 right: 1rem;
 background-color: rgba(255, 255, 255, 0.9);
 padding: 1rem;
@@ -458,7 +458,17 @@ z-index: 1000;
 width: 250px;
 }
 
+.filter-icon {
+width: 24px;
+height: 24px;
+object-fit: contain;
+}
+
 .filter-button {
+width: 100%;
+min-height: 48px;
+justify-content: flex-start;
+box-sizing: border-box;
 display: flex;
 align-items: center;
 gap: 0.5rem;
@@ -472,10 +482,85 @@ font-weight: bold;
 transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.filter-button img {
+width: 30px;
+height: 30px;
+object-fit: contain;
+}
+
+
+#categoryButtons {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+}
+
 .filter-button.active {
 background-color: var(--primary-color);
 color: var(--text-light);
 }
+
+#eventDetailsPanel {
+display: none; /* Hide by default */
+}
+
+#eventDetailsPanel.active {
+display: block;
+}
+
+.details-panel.hidden {
+display: none;
+}
+
+.popup-card {
+  font-family: 'Inter', sans-serif;
+  background-color: white;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  width: 260px;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.popup-price {
+  color: #4CAF50;
+}
+
+.popup-meta div {
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.popup-location {
+  font-size: 0.85rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.popup-description {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  color: #333;
+}
+
+.popup-button {
+  margin-top: 0.75rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
 
 /* responsive design */
 @media (max-width: 1024px) {

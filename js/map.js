@@ -8,28 +8,28 @@ const allMarkers = {
 
 // Custom icons
 const iconEvents = L.icon({
-  iconUrl: '/src/events.svg',
+  iconUrl: '/src/events.png',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32]
 });
 
 const iconMarkets = L.icon({
-  iconUrl: '/src/markets-colored.png',
+  iconUrl: '/src/markets.png',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32]
 });
 
 const iconParks = L.icon({
-  iconUrl: '/src/parks-colored.png',
+  iconUrl: '/src/parks.png',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32]
 });
 
 const iconToilet = L.icon({
-  iconUrl: '/src/toilet-colored.png',
+  iconUrl: '/src/toilets.png',
   iconSize: [32, 32],
   iconAnchor: [16, 32],
   popupAnchor: [0, -32]
@@ -51,6 +51,68 @@ function geocodeAddress(address) {
     });
 }
 
+function focusOnSuburb(suburbName) {
+  if (!suburbName) return;
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(suburbName + ", Brisbane, Australia")}`)
+    .then(res => res.json())
+    .then(results => {
+      if (results.length > 0) {
+        const lat = parseFloat(results[0].lat);
+        const lon = parseFloat(results[0].lon);
+        map.setView([lat, lon], 14); // Zoom in on suburb
+      } else {
+        console.warn("Suburb not found:", suburbName);
+      }
+    });
+}
+
+// Unified event processor
+function processCombinedEvents(events) {
+  const geocodePromises = events.map(record => {
+    const venue = record.venue || record.subject || "Untitled Event";
+    const address = record.venueaddress || record.location || "";
+    const suburb = (address || "").toLowerCase();
+    const category = record.event_template || record.event_type || "General";
+    const age = record.age || record.agerange || "All ages";
+    const date = record.formatteddatetime || record.date || "TBA";
+    const description = record.description || "No description available";
+    const cost = record.cost || "$$$";
+
+    if (!address) return Promise.resolve(); // Skip if no address
+
+    return geocodeAddress(address).then(coords => {
+      if (!coords) return;
+
+      const popupHTML = `
+        <div class="popup-card">
+          <div class="popup-header">
+            <span class="popup-title">${venue}</span>
+            <span class="popup-price">${cost}</span>
+          </div>
+          <div class="popup-meta">
+            <div><strong>Category:</strong> ${category}</div>
+            <div><strong>Age:</strong> ${age}</div>
+            <div><strong>Date:</strong> ${date}</div>
+          </div>
+          <div class="popup-location">${address}</div>
+          <div class="popup-description">${description}</div>
+          <button class="popup-button">More Details</button>
+        </div>
+      `;
+
+      const marker = L.marker([coords.lat, coords.lon], { icon: iconEvents })
+        .bindPopup(popupHTML);
+      marker.suburb = suburb;
+
+      allMarkers.events.push(marker);
+      console.log("Event marker added:", venue, "| Suburb:", suburb);
+    });
+  });
+
+  return Promise.all(geocodePromises);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const map = L.map("map").setView([-27.5, 153.0], 10);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -58,97 +120,154 @@ document.addEventListener("DOMContentLoaded", function () {
     maxZoom: 18
   }).addTo(map);
 
-  //  Infants & Toddlers Events with Geocoding
-  fetch("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/infants-and-toddlers-events/records?limit=100")
-    .then(res => res.json())
-    .then(data => {
-      data.results.forEach(record => {
-        const venue = record.venue || record.subject;
-        const address = record.venueaddress;
-        const suburb = (address || "").toLowerCase();
+  function focusOnSuburb(suburbName) {
+    if (!suburbName) return;
 
-        if (address) {
-          geocodeAddress(address).then(coords => {
-            if (coords) {
-              const marker = L.marker([coords.lat, coords.lon], { icon: iconEvents })
-                .bindPopup(`<strong>${venue}</strong><br>${address}`);
-              marker.suburb = suburb;
-
-              marker.on('click', () => {
-                document.getElementById('eventTitle').textContent = venue;
-                document.getElementById('eventCategory').textContent = record.event_template || "Infants & Toddlers";
-                document.getElementById('eventAge').textContent = record.age || "All ages";
-                document.getElementById('eventDate').textContent = record.formatteddatetime || "TBA";
-                document.getElementById('eventDescription').textContent = record.description || "No description available";
-                document.getElementById('eventDetailsPanel').classList.remove('hidden');
-              });
-
-              allMarkers.events.push(marker);
-            } else {
-              console.warn("Geocoding failed for:", address);
-            }
-          });
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(suburbName + ", Brisbane, Australia")}`)
+      .then(res => res.json())
+      .then(results => {
+        if (results.length > 0) {
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          map.setView([lat, lon], 14); // Zoom in on suburb
+        } else {
+          console.warn("Suburb not found:", suburbName);
         }
       });
-    })
-    .catch(err => console.error("Error loading infants & toddlers events:", err));
+  }
+
+  // Combined Events: Infants & Toddlers + Library Events
+  Promise.all([
+    fetch("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/infants-and-toddlers-events/records?limit=100").then(res => res.json()),
+    fetch("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/library-events/records?limit=100").then(res => res.json())
+  ])
+  .then(([toddlersData, libraryData]) => {
+    const combinedEvents = [...toddlersData.results, ...libraryData.results];
+    return processCombinedEvents(combinedEvents);
+  })
+  .then(() => {
+    console.log("All event markers loaded.");
+  })
+  .catch(err => console.error("Error loading event datasets:", err));
 
   // Markets
   fetch("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/markets-events/records?limit=100")
-    .then(res => res.json())
-    .then(data => {
-      data.results.forEach(record => {
-        const lat = record.latitude;
-        const lon = record.longitude;
-        const name = record.subject;
-        const suburb = (record.suburb || "").toLowerCase();
+  .then(res => res.json())
+  .then(data => {
+    const marketRecords = data.results;
 
-        if (lat && lon) {
-          const marker = L.marker([lat, lon], { icon: iconMarkets })
-            .bindPopup(`<strong>${name}</strong><br>${record.suburb || ""}`);
-          marker.suburb = suburb;
-          allMarkers.markets.push(marker);
-        }
+    marketRecords.forEach(record => {
+      const name = record.subject || "Unnamed Market";
+      const address = record.location || record.venueaddress || "";
+      const suburb = (address || "").toLowerCase();
+      const date = record.formatteddatetime || record.date || "TBA";
+      const description = record.description || "No description available";
+      const cost = record.cost || "$$$";
+
+      if (!address) return;
+
+      geocodeAddress(address).then(coords => {
+        if (!coords) return;
+
+        const popupHTML = `
+          <div class="popup-card">
+            <div class="popup-header">
+              <span class="popup-title">${name}</span>
+              <span class="popup-price">${cost}</span>
+            </div>
+            <div class="popup-meta">
+              <div><strong>Date:</strong> ${date}</div>
+            </div>
+            <div class="popup-location">${address}</div>
+            <div class="popup-description">${description}</div>
+            <button class="popup-button">More Details</button>
+          </div>
+        `;
+
+        const marker = L.marker([coords.lat, coords.lon], { icon: iconMarkets })
+          .bindPopup(popupHTML);
+        marker.suburb = suburb;
+
+        allMarkers.markets.push(marker);
       });
     });
+  });
 
   // Parks
   fetch("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/park-locations/records?limit=100")
-    .then(res => res.json())
-    .then(data => {
-      data.results.forEach(record => {
-        const lat = record.latitude;
-        const lon = record.longitude;
-        const name = record.park_name;
-        const suburb = (record.suburb || "").toLowerCase();
+  .then(res => res.json())
+  .then(data => {
+    const parkRecords = data.results;
 
-        if (lat && lon) {
-          const marker = L.marker([lat, lon], { icon: iconParks })
-            .bindPopup(`<strong>${name}</strong><br>${record.suburb || ""}`);
-          marker.suburb = suburb;
-          allMarkers.parks.push(marker);
-        }
-      });
+    parkRecords.forEach(record => {
+      const name = record.park_name || "Unnamed Park";
+      const suburbRaw = record.suburb || "";
+      const suburb = suburbRaw.trim().toLowerCase();
+
+      const lat = record.latitude;
+      const lon = record.longitude;
+
+      if (!lat || !lon) return;
+
+      const popupHTML = `
+        <div class="popup-card">
+          <strong>${name}</strong><br>
+          ${suburbRaw}
+        </div>
+      `;
+
+      const marker = L.marker([lat, lon], { icon: iconParks })
+        .bindPopup(popupHTML);
+      marker.suburb = suburb;
+
+      allMarkers.parks.push(marker);
     });
+  });
 
   // Toilets
   fetch("https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/public-toilets-in-brisbane/records?limit=100")
-    .then(res => res.json())
-    .then(data => {
-      data.results.forEach(record => {
-        const lat = record.latitude;
-        const lon = record.longitude;
-        const name = record.name || "Toilet";
-        const suburb = (record.suburb || "").toLowerCase();
+  .then(res => res.json())
+  .then(data => {
+    const toiletRecords = data.results;
 
-        if (lat && lon) {
-          const marker = L.marker([lat, lon], { icon: iconToilet })
-            .bindPopup(`<strong>${name}</strong><br>${record.suburb || ""}`);
-          marker.suburb = suburb;
-          allMarkers.toilet.push(marker);
-        }
-      });
+    toiletRecords.forEach(record => {
+      const lat = record.latitude;
+      const lon = record.longitude;
+
+      if (!lat || !lon) return;
+
+      const name = record.name || "Unnamed Facility";
+      const facilityType = record.facilitytype || "Unknown Type";
+      const address = record.address || "No address provided";
+      const suburbRaw = record.suburb || "";
+      const suburb = suburbRaw.trim().toLowerCase();
+      const babyChange = record.babychange === "Yes" ? "✅ Baby Change Available" : "❌ No Baby Change";
+      const babyCareRoom = record.babycareroom === "Yes" ? "✅ Baby Care Room Available" : "❌ No Baby Care Room";
+      const openingHours = record.openinghours || "Opening hours not listed";
+
+      const popupHTML = `
+        <div class="popup-card">
+          <div class="popup-header">
+            <span class="popup-title">${name}</span>
+          </div>
+          <div class="popup-meta">
+            <div><strong>Facility Type:</strong> ${facilityType}</div>
+            <div><strong>Address:</strong> ${address}</div>
+            <div><strong>Suburb:</strong> ${suburbRaw}</div>
+            <div><strong>${babyChange}</strong></div>
+            <div><strong>${babyCareRoom}</strong></div>
+            <div><strong>Opening Hours:</strong> ${openingHours}</div>
+          </div>
+        </div>
+      `;
+
+      const marker = L.marker([lat, lon], { icon: iconToilet })
+        .bindPopup(popupHTML);
+      marker.suburb = suburb;
+
+      allMarkers.toilet.push(marker);
     });
+  });
 
   // Filtering Logic
   document.querySelectorAll('.filter-button').forEach(button => {
@@ -156,6 +275,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const category = button.dataset.type;
       const suburbInput = document.getElementById('suburbInput').value.trim().toLowerCase();
 
+      if (suburbInput !== "") {
+        focusOnSuburb(suburbInput);
+      } else {
+        map.setView([-27.5, 153.0], 10); // Default Brisbane view
+      }
+      
       document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
       button.classList.add('active');
 
@@ -164,7 +289,14 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       allMarkers[category].forEach(marker => {
-        if (suburbInput === "" || marker.suburb.includes(suburbInput)) {
+        const markerSuburb = marker.suburb || "";
+        console.log("Checking marker:", marker.suburb, "| Against input:", suburbInput);
+
+
+        if (suburbInput === "" || marker.suburb.includes(suburbInput) ||
+          markerSuburb.includes(suburbInput.replace(/\s+/g, "-")) ||
+          markerSuburb.includes(suburbInput.replace(/\s+/g, ""))
+        ) {
           marker.addTo(map);
         }
       });
@@ -178,4 +310,3 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('eventDetailsPanel').classList.add('hidden');
   });
 });
-

@@ -14,15 +14,8 @@ function updateProgressBar() {
 
   const percentage = Math.min((userPoints / goal) * 100, 100);
   progress.style.width = `${percentage}%`;
-
-  // 👇 Change text based on current points
-  if (userPoints === 0) {
-    progress.innerText = "Get points to receive discounts!";
-  } else {
-    progress.innerText = `You have ${userPoints} out of ${goal} points`;
-  }
+  progress.innerText = `${userPoints}/${goal}`;
 }
-
 
 // --- ADD POINTS FUNCTION ---
 function addPoints(amount) {

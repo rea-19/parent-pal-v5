@@ -1,12 +1,13 @@
 /* base colours */
 :root {
---primary-color: #8FC73B;        
---secondary-color: #FFB916;     
---accent-green: #28A745;        
+--primary-color: #8FC73B;
+--secondary-color: #FFB916;
+--accent-green: #28A745;
 --background-color: #FFFFFF;
---text-color: #000000;        
---text-light: #FFFFFF;        
+--text-color: #000000;
+--text-light: #FFFFFF;
 --muted-text: #555555;
+--modal-blue: #004080; /* Used for the slider tab */
 }
 
 
@@ -23,6 +24,57 @@ line-height: 1.6;
 color: var(--text-light);
 background-color: #252525;
 }
+
+/* --- MODAL SPECIFIC STYLES --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* Ensure it's above everything else */
+    overflow: auto; /* Allows scrolling on smaller screens */
+    padding: 20px;
+    box-sizing: border-box;
+    /* Optional: Add a fade-in effect */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal-overlay.active {
+    display: flex; /* Shown when 'active' class is added by JS */
+    opacity: 1;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    font-size: 40px;
+    font-weight: bold;
+    color: #fff;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 2001;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: var(--secondary-color);
+}
+
+.wrapper {
+    box-shadow: 0px 15px 20px rgba(0,0,0,0.4); /* Stronger shadow for modal */
+    position: relative; 
+}
+/* END MODAL SPECIFIC STYLES */
+
 
 /* header and navigation */
 #header {
@@ -615,10 +667,10 @@ display: none;
 }
 
 .picture {
-  width: 100%;            
-  height: auto;           
-  border-radius: 8px;     
-  object-fit: cover;      
+  width: 100%; 
+  height: auto; 
+  border-radius: 8px; 
+  object-fit: cover; 
   display: block;
   margin-bottom: 1rem;
 }
@@ -679,5 +731,206 @@ display: none;
 @media (max-width: 480px) {
 #map {
     height: 35vh;
+}
+
+
+.wrapper{
+  overflow: hidden;
+  max-width: 390px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0px 15px 20px rgba(0,0,0,0.1);
+}
+.wrapper .title-text{
+  display: flex;
+  width: 200%;
+}
+.wrapper .title{
+  width: 50%;
+  font-size: 35px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+.wrapper .slide-controls{
+  position: relative;
+  display: flex;
+  height: 50px;
+  width: 100%;
+  overflow: hidden;
+  margin: 30px 0 10px 0;
+  justify-content: space-between;
+  border: 1px solid lightgrey;
+  border-radius: 15px;
+}
+.slide-controls .slide{
+  height: 100%;
+  width: 100%;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  line-height: 48px;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.6s ease;
+}
+.slide-controls label.signup{
+  color: #000;
+}
+.slide-controls .slider-tab{
+  position: absolute;
+  height: 100%;
+  width: 50%;
+  left: 0;
+  z-index: 0;
+  border-radius: 15px;
+  background: -webkit-linear-gradient(left,#003366,#004080,#0059b3
+, #0073e6);
+  transition: all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+input[type="radio"]{
+  display: none;
+}
+#signup:checked ~ .slider-tab{
+  left: 50%;
+}
+#signup:checked ~ label.signup{
+  color: #fff;
+  cursor: default;
+  user-select: none;
+}
+#signup:checked ~ label.login{
+  color: #000;
+}
+#login:checked ~ label.signup{
+  color: #000;
+}
+#login:checked ~ label.login{
+  cursor: default;
+  user-select: none;
+}
+.wrapper .form-container{
+  width: 100%;
+  overflow: hidden;
+}
+.form-container .form-inner{
+  display: flex;
+  width: 200%;
+}
+.form-container .form-inner form{
+  width: 50%;
+  transition: all 0.6s cubic-bezier(0.68,-0.55,0.265,1.55);
+}
+.form-inner form .field{
+  height: 50px;
+  width: 100%;
+  margin-top: 20px;
+}
+.form-inner form .field input{
+  height: 100%;
+  width: 100%;
+  outline: none;
+  padding-left: 15px;
+  border-radius: 15px;
+  border: 1px solid lightgrey;
+  border-bottom-width: 2px;
+  font-size: 17px;
+  transition: all 0.3s ease;
+}
+.form-inner form .field input:focus{
+  border-color: #1a75ff;
+  /* box-shadow: inset 0 0 3px #fb6aae; */
+}
+.form-inner form .field input::placeholder{
+  color: #999;
+  transition: all 0.3s ease;
+}
+form .field input:focus::placeholder{
+  color: #1a75ff;
+}
+.form-inner form .pass-link{
+  margin-top: 5px;
+}
+.form-inner form .signup-link{
+  text-align: center;
+  margin-top: 30px;
+}
+.form-inner form .pass-link a,
+.form-inner form .signup-link a{
+  color: #1a75ff;
+  text-decoration: none;
+}
+.form-inner form .pass-link a:hover,
+.form-inner form .signup-link a:hover{
+  text-decoration: underline;
+}
+form .btn{
+  height: 50px;
+  width: 100%;
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+}
+form .btn .btn-layer{
+  height: 100%;
+  width: 300%;
+  position: absolute;
+  left: -100%;
+  background: -webkit-linear-gradient(right,#003366,#004080,#0059b3
+, #0073e6);
+  border-radius: 15px;
+  transition: all 0.4s ease;;
+}
+form .btn:hover .btn-layer{
+  left: 0;
+}
+form .btn input[type="submit"]{
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  position: relative;
+  background: none;
+  border: none;
+  color: #fff;
+  padding-left: 0;
+  border-radius: 15px;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+/* Ensure the modal is centered properly on small screens */
+.modal-overlay {
+    align-items: flex-start; /* Start from the top on small screens */
+    padding-top: 50px;
+}
+
+/* Styling for the new Login/Signup button */
+.login-trigger-btn {
+    /* Layout properties, similar to the <a> links */
+    flex: 1; 
+    
+    /* Appearance */
+    background-color: var(--secondary-color); /* Use the accent yellow/orange */
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 17px;
+    text-align: center;
+    padding: 12px 20px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    
+    /* Ensure it aligns with the links */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-trigger-btn:hover {
+    background-color: #ffc942; /* A slightly lighter yellow for hover */
+    color: var(--text-color);
 }
 }

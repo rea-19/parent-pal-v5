@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/test.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-p6CjwB5D1l84cM5KuV1wX1Z5U1wD0g/6QxCg3WQ03NnODU4rrjT0TV4U+6Zz5f9G7D1mEeGey9d8eHtG75TQ1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -12,6 +12,60 @@
     <script src="https://kit.fontawesome.com/c8e4d183c2.js" crossorigin="anonymous"></script>
 </head>
 <body>
+
+    <!-- Popup Overlay -->
+<!-- Popup Overlay -->
+<div id="popupOverlay" class="overlay">
+  <div class="wrapper">
+    <div class="title-text">
+      <div class="title login">Login Form</div>
+      <div class="title signup">Signup Form</div>
+    </div>
+    <div class="form-container">
+      <div class="slide-controls">
+        <input type="radio" name="slide" id="login" checked>
+        <input type="radio" name="slide" id="signup">
+        <label for="login" class="slide login">Login</label>
+        <label for="signup" class="slide signup">Signup</label>
+        <div class="slider-tab"></div>
+      </div>
+      <div class="form-inner">
+        <form action="#" class="login">
+          <div class="field">
+            <input type="text" placeholder="Email Address" required>
+          </div>
+          <div class="field">
+            <input type="password" placeholder="Password" required>
+          </div>
+          <div class="pass-link"><a href="#">Forgot password?</a></div>
+          <div class="field btn">
+            <div class="btn-layer"></div>
+            <input type="submit" value="Login">
+          </div>
+          <div class="signup-link">Not a member? <a href="">Signup now</a></div>
+        </form>
+        <form action="#" class="signup">
+          <div class="field">
+            <input type="text" placeholder="Email Address" required>
+          </div>
+          <div class="field">
+            <input type="password" placeholder="Password" required>
+          </div>
+          <div class="field">
+            <input type="password" placeholder="Confirm password" required>
+          </div>
+          <div class="field btn">
+            <div class="btn-layer"></div>
+            <input type="submit" value="Signup">
+          </div>
+        </form>
+      </div>
+      <span class="close">&times;</span>
+    </div>
+  </div>
+</div>
+
+
     <!-- The header is fetched -->
     <div id="header"></div>
 

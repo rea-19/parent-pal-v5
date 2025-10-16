@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <link rel="stylesheet" href="/css/main.css">
+    <head>
+    <script src="script.js" defer></script>
+</head>
+
 </head>
 <body>
     <!-- The header is fetched -->
@@ -19,7 +23,7 @@
     <!-- Membership Card Section -->
   <section class="card-section">
     <div class="membership-card">
-        <img src="/src/rewards.card.png" width="320">>
+        <img src="/src/rewards_card.png" width="320">
       <button class="wallet-btn">Add to Apple Wallet</button>
     </div>
   </section>
@@ -30,6 +34,7 @@
   </section>
 
   <!-- Rewards Section -->
+   <!-- link goals to progress bar -->
   <section class="rewards">
     <h2>Rewards</h2>
     <div class="rewards-grid">
@@ -61,11 +66,18 @@
   </section>
 
 
+  <button onclick="addPoints(10)">+10 Points</button>
+  <button onclick="setGoal(200)">Set Goal to 200</button>
+  <button onclick="resetPoints()">Reset</button>
+
+
+
 
     <div id="footer"></div>
 
     <!-- Javascript -->
     <script src="/js/header_footer.js"></script>
+    <script src="/js/rewards_logic.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 	
 </body>

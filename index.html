@@ -15,8 +15,23 @@
 
     <h1></h1>
     <!--image sideshow-->
-    <img src="/src/home-activities1.jpg" style="width: 70%; height: auto;">
+    <div class="slider">
+        <div class="slides">
+            <img class="slide" src="/src/home-activities1.jpg" alt="Image #1">
+            <img class="slide" src="/src/father-and-daughter.jpg" alt="Image #2">
+            <img class="slide" src="/src/home-activities1.jpg" alt="Image #3">
+            <img class="slide" src="/src/rewards.card.png" alt="Image #4">
+            <img class="slide" src="/src/father-and-daughter.jpg" alt="Image #5">
+        </div>
+        <button class="next" onclick="nextSlide()">&#10095</button>
+        <button class="previous" onclick="previousSlide()">&#10094;</button>
+    </div>
 
+
+
+
+
+    
     <!--about section-->
     <h3>About Us</h3>
     <p>ParentPal is your go-to platform for discovering exciting and family-friendly events tailored to children of all ages. Designed with busy parents in mind, ParentPal makes it easy to explore what’s happening in your local area with just a few clicks. Whether you’re searching for music classes, sports activities, educational workshops, or fun weekend outings, the platform helps you find events that match your child’s interests and your family’s schedule.
@@ -31,6 +46,7 @@
 
     <!-- Javascript -->
     <script src="/js/header_footer.js"></script>
+    <script src="/js/home.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 
 </body>
